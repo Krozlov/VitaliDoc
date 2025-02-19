@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Profile Page</title>
+  <style>
+    /* General Reset and Body Center */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+
+    /* Main Profile Container */
+    .container {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px 30px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Arrow Redirect Icon */
+    .arrow-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      color: #333;
+      text-decoration: none;
+    }
+
+    /* Profile Circle */
+    .profile-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 10px auto;
+      cursor: pointer;
+      background-image: url('resources/images/profile.jpg');
+      background-size: cover;
+      background-position: center;
+      border: 2px solid #aaa;
+    }
+    /*Edit icon styles*/
+    .edit-image{
+      width:40px;
+      height:40px;
+      position:absolute;
+      margin-left:30px;
+      margin-top:-50px;
+    }
+    /*Preview circle style*/
+    #previewCircle{
+      width:190px;
+      height:190px;
+    }
+    /*Loads the delete button when preview circle is hovered*/
+    #previewCircle:hover::before {
+      content: ""; 
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%); 
+      width: 190px;
+      height: 190px;
+      background-image: url('resources/images/deleteChatButton.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 50%; 
+      z-index: 2; 
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+    /*Adds the blur effect on the background image of preview circle*/
+    #previewCircle:hover::after {
+        content: ""; 
+        position: absolute;
+        left: 50%; 
+        transform: translate(-50%); 
+        width: 190px;
+        height: 190px;
+        background: rgba(0, 0, 0, 0.5);
+        filter: blur(5px);
+        border-radius: 50%;
+        z-index: 1; 
+        transition: filter 0.3s ease; 
+    }
+
+    /* Disable hover effects when 'clicked' class is added */
+    #previewCircle.clicked:hover::before,
+    #previewCircle.clicked:hover::after {
+        content: none !important;
+        opacity: 1 !important; 
+        filter: none !important;
+        background-image: none !important; 
+        background: none !important; 
+    }
+    
+    /* Input Fields */
+    .profile-fields input {
+      width: 100%;
+      padding: 8px 5px;
+      margin: 5px 0;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    /* Buttons Section */
+    .buttons-container {
+      margin-top: 10px;
+    }
+    /*Button styles*/
+    .btn {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    /*Change color when button is hovered*/
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    /*logout button color*/
+    .btn-logout {
+      background-color: red;
+    }
+
+    .btn-logout:hover {
+      background-color: darkred;
+    }
+    /*Yes and delete button color*/
+    #deleteBtn, #yesBtn{
+      background-color: red;
+    }
+    #deleteBtn:hover, #yesBtn:hover{
+      background-color: darkred;
+    }
+    /*Delete confirmation container styling*/
+    .delete{
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px 30px;
+      width: 100%;
+      height:35%;
+      max-width: 400px;
+      text-align: center;
+      justify-content: center;
+      display:flex;
+      flex-direction:column;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      position:absolute;
+      z-index:1000;
+    }
+    #passwordInput{
+      width:100%; 
+      padding:10px; 
+      margin-top:15px;
+    }
+    #reAuthenticate-instruction{
+      font-size:x-small;
+      margin-top:15px;
+    }
+    /*Input profile picture div styles*/
+    #inputContainer{
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px 30px;
+      width: 100%;
+      height:50%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      position:absolute;
+      z-index:1000;
+    }
+    #inputContainer *{
+      margin-top:7%;
+      margin-bottom:2%;
+    }
+    /*Styles for the edit profile picture div close button*/
+    #close-button{
+      position:absolute;
+      margin-left:40%;
+      margin-top:0%;
+      background-color:none;
+      cursor: pointer;
+      border:none;
+    }
+    /*A hidden class, makes an element have no display*/
+    .hidden{
+      display:none;
+    }
+    /*Adds blur*/
+    .blur {
+      filter: blur(5px);
+      pointer-events: none; /* Optional: prevent interaction with blurred content */
+    }
+    /*Edit profile div instruction*/
+    .instruction{
+      font-size:x-small;
+      margin-top:0px !important;
+
+    }
+    /* Loading Bar */
+    #loadingBarContainer {
+      width: 100%;
+      height: 6px;
+      background-color: #f3f3f3;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    #loadingBar {
+      height: 100%;
+      width: 0%;
+      background-color: blue;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px 20px;
+      }
+      #inputContainer{
+        padding: 15px 20px;
+        width: 100%;
+        height:43%;
+      }
+
+      .profile-circle {
+        width: 100px;
+        height: 100px;
+      }
+      .edit-image{
+        width:30px;
+        height:30px;
+        margin-left:20px;
+        margin-top:-45px;
+      }
+        #previewCircle{
+          width:170px;
+          height:170px;
+          cursor: default;
+      }
+      #previewCircle:hover::before {
+          width: 170px;
+          height: 170px;
+          
+      }
+
+      #previewCircle:hover::after {
+          width: 170px;
+          height: 170px;
+          
+      }
+
+      .profile-fields input {
+        font-size: 12px;
+      }
+
+      .btn {
+        font-size: 12px;
+        padding: 8px 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .profile-circle {
+        width: 80px;
+        height: 80px;
+      }
+      .edit-image{
+        width:20px;
+        height:20px;
+        margin-left:20px;
+        margin-top:-35px;
+      }
+        #previewCircle{
+          width:150px;
+          height:150px;
+          cursor: default;
+      }
+      #previewCircle:hover::before {
+          width: 150px;
+          height: 150px;
+          
+      }
+
+      #previewCircle:hover::after {
+          width: 150px;
+          height: 150px;
+          
+      }
+
+
+      .btn {
+        padding: 8px 12px;
+        font-size: 10px;
+      }
+
+      .profile-fields input {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="arrow-btn" href="dashboard.html">←</a>
+
+  <!-- Confirm Delete Account Section -->
+  <div class="delete hidden" id="deleteContainer">
+    <h2>Are you sure you want to delete this account?</h2>
+    <input type="password" id="passwordInput" placeholder="Enter your password to delete account"/>
+    <p id="reAuthenticate-instruction">Press Yes and Re-Authenticate with you current google account to delete</p>
+    <div class="buttons-container">
+      <button class="btn btn-yes" id="yesBtn">Yes</button>
+      <button class="btn" id="noBtn">No</button>
+    </div>
+  </div>
+  <!-- Loading Bar Container -->
+  <div id="loadingBarContainer">
+    <div id="loadingBar"></div>
+  </div>
+  <!--Input profile picture Section-->
+  <div id="inputContainer" class="hidden">
+    <button id="close-button" class="">X</button>
+    <div
+      class="profile-circle"
+      id="previewCircle"
+    ></div>
+    <input type="text" id="imageUrlInput" placeholder="Enter image URL" />
+    <button id="uploadImageButton" class="btn">Save Image</button>
+    <p class="instruction">Input the image address to use as a profile picture</p>
+  </div>
+
+  <div class="container" id="container">
+    <!-- Profile Image Placeholder -->
+    <div>
+      <div
+        class="profile-circle"
+        id="profileCircle"
+      ></div>
+      <img src="resources/images/editImage.png" alt="edit image" class="edit-image">
+    </div>
+    
+    <!-- Editable Fields Section -->
+    <div class="profile-fields">
+      <input type="text" id="name" placeholder="Name">
+      <input type="date" id="birthdate" placeholder="Birthdate">
+      <input type="text" id="bloodType" placeholder="Blood Type">
+      <input type="number" id="height" placeholder="Height (cm)">
+      <input type="number" id="weight" placeholder="Weight (kg)">
+      <input type="email" id="email" placeholder="Email" disabled>
+    </div>
+
+    
+    <!-- Buttons Section -->
+    <div class="buttons-container">
+      <button class="btn btn-logout" id="logoutBtn">Logout</button>
+      <button class="btn" id="saveBtn">Save</button>
+      <button class="btn" id="deleteBtn">Delete Account</button>
+    </div>
+  </div>
+  <!--Firebase links-->
+  <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-database-compat.js"></script>
+  <script src="resources/js/register.js"></script> <!--To get the firebase config-->
+  <script>
+    // All html elements that is used
+    const profileCircle = document.getElementById('profileCircle');
+    const saveButton = document.getElementById('saveBtn');
+    const logoutButton = document.getElementById('logoutBtn');
+    // User profile inputs
+    const nameInput = document.getElementById('name');
+    const birthdateInput = document.getElementById('birthdate');
+    const bloodTypeInput = document.getElementById('bloodType');
+    const heightInput = document.getElementById('height');
+    const weightInput = document.getElementById('weight');
+    const emailInput = document.getElementById('email');
+    // Upload image button event
+    const uploadImageButton = document.getElementById('uploadImageButton');
+    const imageUrlInput = document.getElementById('imageUrlInput');
+    const inputContainer = document.getElementById('inputContainer');
+    const body = document.getElementById('container');
+    const closeUpload = document.getElementById('close-button');
+    const previewCircle = document.getElementById('previewCircle');
+    let imageUrl;
+    const loadingBar = document.getElementById('loadingBar');
+
+    // Show loading bar until data is fetched
+    function showLoadingBar() {
+      loadingBar.style.width = '20%';
+      setTimeout(() => {
+        loadingBar.style.width = '80%';
+      }, 100); 
+    }
+
+    // Hide loading bar once data is fetched
+    function hideLoadingBar() {
+      loadingBar.style.width = '0%';
+    }
+
+    // Upload image section
+    profileCircle.addEventListener('click', function() {
+      const user = auth.currentUser;
+
+      // Defines the user.email value for display purposes
+      const userEmail = user.email;
+      const userEmailKey = userEmail.replace(/[^a-zA-Z0-9]/g, ',');
+
+      inputContainer.classList.toggle('hidden');
+      body.classList.toggle('blur')
+      // Fetch user profile picture link from the database
+      db.ref(`users/${userEmailKey}/profilePicture`).once('value').then(snapshot => {
+        const profilePicture = snapshot.val();
+        if (profilePicture === 'resources/images/profile.jpg'){
+              previewCircle.classList.add('clicked');
+              previewCircle.style.cursor = 'default';
+            }  else {
+              previewCircle.classList.remove('clicked');
+              previewCircle.style.cursor = 'pointer';
+
+            }
+        // Sets the background image for the preview circle from the link in the db
+        previewCircle.style.backgroundImage = `url(${profilePicture})`;
+        previewCircle.style.backgroundSize = 'cover'; 
+        previewCircle.style.backgroundPosition = 'center';
+        previewCircle.style.backgroundRepeat = 'no-repeat'; 
+      });
+      
+    });
+    // Checks whether the image url input is empty
+    imageUrlInput.addEventListener('input', function () {
+      const user = auth.currentUser;
+
+      // Use the user.email for user profile display
+      const userEmail = user.email;
+      const userEmailKey = userEmail.replace(/[^a-zA-Z0-9]/g, ',');
+      // Sets the preview circle once the link is inputted
+      const url = imageUrlInput.value.trim();
+      if (url.match(/https?:\/\/[^\s]+/)) {
+        previewCircle.style.backgroundImage = `url(${url})`;
+        previewCircle.style.backgroundSize = 'cover'; 
+        previewCircle.style.backgroundPosition = 'center'; 
+        previewCircle.style.backgroundRepeat = 'no-repeat'; 
+        previewCircle.classList.remove('clicked');
+        previewCircle.style.cursor = 'pointer';
+
+      } else {
+      // Fetch user profile picture link from the database
+      db.ref(`users/${userEmailKey}/profilePicture`).once('value').then(snapshot => {
+              const profilePicture = snapshot.val();
+              if (profilePicture === 'resources/images/profile.jpg'){
+                previewCircle.classList.add('clicked');
+                previewCircle.style.cursor = 'default';
+              }
+              // Sets the preview circle background
+              previewCircle.style.backgroundImage = `url(${profilePicture})`;
+              previewCircle.style.backgroundSize = 'cover'; 
+              previewCircle.style.backgroundPosition = 'center'; 
+              previewCircle.style.backgroundRepeat = 'no-repeat'; 
+            });
+        }
+    });
+    // Adds an event listener to the preview circle to delete the profile picture
+    previewCircle.addEventListener('click', function() {
+      previewCircle.style.backgroundImage = `url('resources/images/profile.jpg')`;
+      previewCircle.style.backgroundSize = '100% 100%'; 
+      previewCircle.style.backgroundPosition = 'center'; 
+      previewCircle.style.backgroundRepeat = 'no-repeat'; 
+
+      previewCircle.classList.add('clicked');
+      previewCircle.style.cursor = 'default';
+      imageUrlInput.value = ''; // Clear the input field after setting the image
+  });
+
+  // Closes the upload image div
+    closeUpload.addEventListener('click', function(){
+      inputContainer.classList.add('hidden');
+      body.classList.remove('blur');
+      imageUrlInput.value = ''; // Clear the input field after setting the image
+    })
+    // Saves the image link to the db when the button is clicked
+    uploadImageButton.addEventListener('click', function() {
+      const user = auth.currentUser;
+
+      // Use the user.email value directly for display purposes
+      const userEmail = user.email;
+      const userEmailKey = userEmail.replace(/[^a-zA-Z0-9]/g, ',');
+
+      const url = imageUrlInput.value.trim();
+      if (url) {
+        // Sets the background image of the profile circle to the image link
+        if (url.match(/https?:\/\/[^\s]+/)) {
+          imageUrl = url
+          profileCircle.style.backgroundImage = `url(${url})`;
+          profileCircle.style.backgroundSize = 'cover'; 
+          profileCircle.style.backgroundPosition = 'center'; 
+          profileCircle.style.backgroundRepeat = 'no-repeat'; 
+          imageUrlInput.value = ''; 
+          inputContainer.classList.add('hidden');
+          body.classList.remove('blur');
+
+          // Update data in Firebase 
+          db.ref(`users/${userEmailKey}/profilePicture`).set(imageUrl)
+            .then(() => console.log('Username updated successfully!'))
+            .catch(error => alert('Error updating username: ' + error.message));
+
+              } else {
+                alert('Please enter a valid image URL.');
+              }
+              
+      } else {
+        if (previewCircle.classList.contains('clicked')) {
+          imageUrl = 'resources/images/profile.jpg'
+          profileCircle.style.backgroundImage = `url('resources/images/profile.jpg')`;
+          profileCircle.style.backgroundSize = 'cover'; 
+          profileCircle.style.backgroundPosition = 'center'; 
+          profileCircle.style.backgroundRepeat = 'no-repeat'; 
+          imageUrlInput.value = ''; 
+          inputContainer.classList.add('hidden');
+          body.classList.remove('blur');
+
+          // Update data in Firebase
+          db.ref(`users/${userEmailKey}/profilePicture`).set(imageUrl)
+            .then(() => console.log('Username updated successfully!'))
+            .catch(error => alert('Error updating username: ' + error.message));
+
+              } else {
+                alert('Please enter a valid image URL.');
+        }
+      } 
+    });
+
+// Listen for changes in the authentication state
+auth.onAuthStateChanged((user) => {
+
+  if (user) {
+
+    emailInput.value = user.email; // Display the email from the user db
+    const userEmailKey = user.email.replace(/[^a-zA-Z0-9]/g, ',');
+     
+    // Fetch user profile picture link from the database
+    db.ref(`users/${userEmailKey}/profilePicture`).once('value').then(snapshot => {
+      const profilePicture = snapshot.val();
+      if (profilePicture === 'resources/images/profile.jpg'){
+        previewCircle.classList.add('clicked');
+        previewCircle.style.cursor = 'default';
+
+      }
+      profileCircle.style.backgroundImage = `url(${profilePicture})`;
+      profileCircle.style.backgroundSize = 'cover'; 
+      profileCircle.style.backgroundPosition = 'center'; 
+      profileCircle.style.backgroundRepeat = 'no-repeat'; 
+      // Set the default profile image for new users
+      if (profilePicture === null){
+        profileCircle.style.backgroundImage = `url('resources/images/profile.jpg')`;
+        profileCircle.style.backgroundSize = 'cover'; 
+        profileCircle.style.backgroundPosition = 'center'; 
+        profileCircle.style.backgroundRepeat = 'no-repeat'; 
+        db.ref(`users/${userEmailKey}/profilePicture`).set('resources/images/profile.jpg')
+      }
+    });
+
+    // Fetch user data from the database
+    db.ref(`users/${userEmailKey}/username`).once('value').then(snapshot => {
+      const username = snapshot.val();
+      nameInput.value = username || ''; // Set the username or leave empty if not found
+    });
+
+    db.ref(`users/${userEmailKey}/birthdate`).once('value').then(snapshot => {
+      const birthdate = snapshot.val();
+      birthdateInput.value = birthdate || ''; // Set the birthdate or leave empty
+    });
+
+    db.ref(`users/${userEmailKey}/bloodType`).once('value').then(snapshot => {
+      const bloodType = snapshot.val();
+      bloodTypeInput.value = bloodType || ''; // Set the blood type or leave empty
+    });
+
+    db.ref(`users/${userEmailKey}/height`).once('value').then(snapshot => {
+      const height = snapshot.val();
+      heightInput.value = height || ''; // Set the height or leave empty
+    });
+
+    db.ref(`users/${userEmailKey}/weight`).once('value').then(snapshot => {
+      const weight = snapshot.val();
+      weightInput.value = weight || ''; // Set the weight or leave empty
+    });
+    // Hide the loading bar after it reaches 100% and loaded all the user values
+    loadingBar.style.width = '100%';
+    setTimeout(() => {
+      hideLoadingBar();
+    }, 300)
+  } else {
+    // If the user is not logged in, alert and redirect to the login page
+    window.location.href = 'index.html'; // Redirect to login page
+  }
+});
+
+// Save button event to update the database
+saveButton.addEventListener('click', function() {
+  const user = auth.currentUser;
+  const userEmail = user.email;
+  const userEmailKey = userEmail.replace(/[^a-zA-Z0-9]/g, ',');
+
+  // Create user data object for individual fields
+  const username = nameInput.value;
+  const birthdate = birthdateInput.value;
+  const bloodType = bloodTypeInput.value;
+  const height = heightInput.value;
+  const weight = weightInput.value;
+
+  if (user) {
+    // Save all the user inputs to the db
+    db.ref(`users/${userEmailKey}/username`).set(username)
+      .then(() => console.log('Username updated successfully!'))
+      .catch(error => alert('Error updating username: ' + error.message));
+
+    db.ref(`users/${userEmailKey}/birthdate`).set(birthdate)
+      .then(() => console.log('Birthdate updated successfully!'))
+      .catch(error => alert('Error updating birthdate: ' + error.message));
+
+    db.ref(`users/${userEmailKey}/bloodType`).set(bloodType)
+      .then(() => console.log('Blood type updated successfully!'))
+      .catch(error => alert('Error updating blood type: ' + error.message));
+
+    db.ref(`users/${userEmailKey}/height`).set(height)
+      .then(() => console.log('Height updated successfully!'))
+      .catch(error => alert('Error updating height: ' + error.message));
+
+    db.ref(`users/${userEmailKey}/weight`).set(weight)
+      .then(() => console.log('Weight updated successfully!'))
+      .catch(error => alert('Error updating weight: ' + error.message));
+
+    alert('Profile updated successfully!');
+  }
+});
+
+    // Logout button event
+    logoutButton.addEventListener('click', function() {
+      auth.signOut().then(() => { // Logout from the account
+        alert('Logged out');
+        window.location.href = 'index.html'; // Redirect to login page
+      }).catch(error => {
+        alert('Error logging out: ' + error.message);
+      });
+    });
+
+    // html elements for the delete account button
+    const deleteBtn = document.getElementById('deleteBtn');
+    const deleteContainer = document.getElementById('deleteContainer');
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const passwordDelete = document.getElementById('passwordInput');
+    const reAuthenticateInstruction = document.getElementById('reAuthenticate-instruction')
+    // Makes a confirmation to delete pop up appear when clicked
+    deleteBtn.addEventListener('click', function(){
+      const user = firebase.auth().currentUser;
+      const provider = user.providerData[0].providerId; // Get the provider
+      deleteContainer.classList.remove('hidden'); 
+      body.classList.add('blur'); // Blur anything but the confirmation div
+      setTimeout(() => {
+        deleteContainer.classList.remove('blur');
+      }, 1000); 
+      if (provider !== 'google.com') {
+        // For email/password login, reauthentication is required
+        reAuthenticateInstruction.classList.add('hidden');
+        passwordDelete.classList.remove('hidden');
+      } else {
+        reAuthenticateInstruction.classList.remove('hidden');
+        passwordDelete.classList.add('hidden');
+      }
+    })
+
+// Add event listener for the "Yes" button
+yesBtn.addEventListener('click', function () {
+  const user = firebase.auth().currentUser;
+  const password = passwordDelete.value;
+  if (user) {
+    const provider = user.providerData[0].providerId; // Get the provider
+
+    if (provider !== 'google.com') {
+      // For email/password login, reauthentication with password is required
+      if (password) {
+        const email = user.email;
+
+        // Create a credential for reauthentication
+        const credential = firebase.auth.EmailAuthProvider.credential(email, password);
+
+        // Reauthenticate the user
+        user.reauthenticateWithCredential(credential)
+          .then(() => {
+            console.log('User reauthenticated successfully.');
+
+            const userEmailKey = email.replace(/[^a-zA-Z0-9]/g, ',');
+
+            // Delete user data from the database
+            return db.ref(`users/${userEmailKey}`).remove();
+          })
+          .then(() => {
+            console.log('User data deleted successfully.');
+
+            // Delete the user account
+            return user.delete();
+          })
+          .then(() => {
+            console.log('User account deleted successfully.');
+            window.location.href = 'index.html';
+          })
+          .catch((error) => {
+            console.error('Reauthentication failed:', error);
+            alert('Wrong password');
+          });
+      } else {
+        alert('Password is required to proceed with account deletion.');
+      }
+    } else {
+      // For Google login, reauthentication using Google popup
+      console.log('User is logged in with Google, reauthenticating...');
+      
+      const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+      user.reauthenticateWithPopup(googleProvider)
+        .then(() => {
+          console.log('User reauthenticated successfully with Google.');
+
+          const userEmailKey = user.email.replace(/[^a-zA-Z0-9]/g, ',');
+
+          // Delete user data from the database
+          return db.ref(`users/${userEmailKey}`).remove();
+        })
+        .then(() => {
+          console.log('User data deleted successfully.');
+
+          // Delete the user account
+          return user.delete();
+        })
+        .then(() => {
+          alert('User account deleted successfully.');
+          window.location.href = 'index.html';
+        })
+        .catch((error) => {
+          console.error('Error during Google reauthentication or deletion:', error);
+          alert('Could not reauthenticate. Please try again.');
+        });
+    }
+  } else {
+    console.log('No user is currently logged in.');
+  }
+});
+
+
+
+// Cancels the delete and hides the confirmation div
+noBtn.addEventListener('click', function(){
+  deleteContainer.classList.add('hidden');
+  body.classList.remove('blur')
+  passwordInput.value = '';
+})
+
+showLoadingBar() // Calls the loading bar
+  </script>
+</body>
+</html>
